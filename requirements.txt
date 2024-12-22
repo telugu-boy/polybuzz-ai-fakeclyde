@@ -1,0 +1,5 @@
+wheel
+git+https://github.com/dolfies/discord.py-self
+aiohttp
+python-dotenv
+python-dateutil
