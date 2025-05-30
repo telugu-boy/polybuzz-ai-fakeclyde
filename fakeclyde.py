@@ -13,7 +13,7 @@ load_dotenv(find_dotenv())
 cmd_prefix = "GURSSY, pwease "
 owner_ids = [787576039093043202]
 approved_channels = [
-    1088566537415303320,
+    1088566537415303320,1325761177287921696,
     1312605220026712145,
 ]
 
@@ -21,7 +21,7 @@ class PolybuzzFakeClyde(discord.Client):
     def __init__(self, **options: Any) -> None:
         self.polybuzz: PolybuzzSession
         self.char: PolybuzzChar
-        self.character_id = "8A5Ty"
+        self.character_id = "pCBb4"
         super().__init__(**options)
 
     async def on_ready(self):
