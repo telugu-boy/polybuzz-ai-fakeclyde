@@ -1,6 +1,10 @@
 import asyncio
 import datetime
+import requests
 from typing import Any, Dict, List, Optional
+import re
+import cloudscraper
+from bs4 import BeautifulSoup
 import discord
 from polybuzz import PolybuzzSession, PolybuzzChar
 import sys
@@ -31,50 +35,40 @@ class PolybuzzFakeClyde(discord.Client):
         print(
             f"Ready - Connected to {self.user.name} and polybuzz.ai"
         )
+
+    def fbmatch(self, content: str):
+        fbpattern = r"https:\/\/www\.facebook\.com\/share\/r\/[A-Za-z0-9]+\/?"
+        match = re.search(fbpattern, content)
+
+        if not match:
+            return
+        
+        url = match.group()
+
+        scraper = cloudscraper.create_scraper()
+        url = "https://fdown.net/download.php"
+        data = {
+            "URLz": "https://www.facebook.com/share/r/16Z7EzGnT2/"
+        }
+        resp = scraper.post(url, data=data)
+
+        soup = BeautifulSoup(resp.text, features="html.parser")
+        anchor = soup.find("a", id="hdlink")
+        if anchor and anchor.has_attr("href"):
+            hdlink = anchor["href"]
+            return hdlink
+        
+        return
     
     async def on_message(self, message: discord.Message):
         if message.channel.id not in approved_channels:
             return
 
-        """
-        if message.author.id in owner_ids:
-            if message.content.startswith(cmd_prefix + "switch character to"):
-                old_char_id = self.character_id
-                bot.character_id = message.content.split(" ")[-1]
-                await bot.fetch_character_chats()
-                if len(bot.chats) == 0:
-                    try:
-                        new_chat = await create_new_chat()
-                    except Exception as e:
-                        bot.character_id = old_char_id
-                        await message.add_reaction("❌")
-                        return
-                bot.curr_chat = bot.chats[0]
-                chats_msg_reply = await show_chats()
-                await message.reply(chats_msg_reply)
-                return
-
-            if message.content == cmd_prefix + "show chats":
-                await bot.fetch_character_chats()
-                chats_msg_reply = await show_chats()
-                await message.reply(chats_msg_reply)
-                return
-
-            if message.content.startswith(cmd_prefix + "switch chat to "):
-                chat_idx = int(message.content.split(" ")[-1]) - 1
-                if chat_idx >= len(bot.chats):
-                    await message.add_reaction("❌")
-                    return
-                bot.curr_chat = bot.chats[chat_idx]
-                await message.add_reaction("✅")
-                return
-
-            if message.content == cmd_prefix + "create new chat":
-                new_chat = await create_new_chat()
-                bot.curr_chat = new_chat["chat"]
-                await message.add_reaction("✅")
-                return
-        """
+        # match regex for fb share links
+        fburl = self.fbmatch(message.content)
+        if fburl:
+            print(f"got fb message from {message.author.name}")
+            await message.channel.send(f"[vid link]({fburl})")
 
         if message.reference:
             referred_message = await message.channel.fetch_message(
