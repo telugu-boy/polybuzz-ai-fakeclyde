@@ -1,25 +1,28 @@
 import asyncio
 import datetime
-import requests
-from typing import Any, Dict, List, Optional
-import re
-import cloudscraper
-from bs4 import BeautifulSoup
-import discord
-from polybuzz import PolybuzzSession, PolybuzzChar
-import sys
 import os
+import re
+import sys
+from typing import Any, Dict, List, Optional
+
+import cloudscraper
+import discord
+from bs4 import BeautifulSoup
 from dateutil import parser
-from dotenv import load_dotenv, find_dotenv
+from dotenv import find_dotenv, load_dotenv
+
+from polybuzz import PolybuzzChar, PolybuzzSession
 
 load_dotenv(find_dotenv())
 
 cmd_prefix = "GURSSY, pwease "
 owner_ids = [787576039093043202]
 approved_channels = [
-    1088566537415303320,1325761177287921696,
+    1088566537415303320,
+    1325761177287921696,
     1312605220026712145,
 ]
+
 
 class PolybuzzFakeClyde(discord.Client):
     def __init__(self, **options: Any) -> None:
@@ -30,11 +33,11 @@ class PolybuzzFakeClyde(discord.Client):
 
     async def on_ready(self):
         # set polybuzz stuff on ready with async event loop:
-        self.polybuzz = PolybuzzSession(os.getenv("POLY_CUID"), os.getenv("POLY_SESSION"))
-        self.char = PolybuzzChar(self.character_id, self.polybuzz)
-        print(
-            f"Ready - Connected to {self.user.name} and polybuzz.ai"
+        self.polybuzz = PolybuzzSession(
+            os.getenv("POLY_CUID"), os.getenv("POLY_SESSION")
         )
+        self.char = PolybuzzChar(self.character_id, self.polybuzz)
+        print(f"Ready - Connected to {self.user.name} and polybuzz.ai")
 
     def fbmatch(self, content: str):
         fbpattern = r"https:\/\/www\.facebook\.com\/share\/[^\/]+\/[A-Za-z0-9]+\/?"
@@ -42,7 +45,7 @@ class PolybuzzFakeClyde(discord.Client):
 
         if not match:
             return
-        
+
         url = match.group()
 
         scraper = cloudscraper.create_scraper()
@@ -56,9 +59,9 @@ class PolybuzzFakeClyde(discord.Client):
         if anchor and anchor.has_attr("href"):
             hdlink = anchor["href"]
             return hdlink
-        
+
         return
-    
+
     async def on_message(self, message: discord.Message):
         if message.channel.id not in approved_channels:
             return
@@ -91,6 +94,7 @@ class PolybuzzFakeClyde(discord.Client):
 
 
 bot = PolybuzzFakeClyde(chunk_guilds_at_startup=False)
+
 
 async def main():
     if len(sys.argv) > 1:

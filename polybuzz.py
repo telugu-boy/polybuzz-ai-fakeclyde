@@ -1,6 +1,8 @@
 import asyncio
 import json
+
 import aiohttp
+
 
 class PolybuzzSession:
     def __init__(self, poly_cuid: str, poly_session: str):
@@ -56,17 +58,18 @@ class PolybuzzSession:
         async with self.session.post(
             self.host + "/api/conversation/msgbystream", data=data
         ) as resp:
-            resp_msgs_raw = (await resp.read()).decode('UTF-8').split("\n")
+            resp_msgs_raw = (await resp.read()).decode("UTF-8").split("\n")
             resp_msg = ""
             for rawmsg in resp_msgs_raw:
                 try:
                     msg = json.loads(rawmsg)
-                    resp_msg += msg['content']
+                    resp_msg += msg["content"]
                 except json.JSONDecodeError:
                     pass
         return resp_msg
 
-class PolybuzzChar():
+
+class PolybuzzChar:
     def __init__(self, char: str, session: PolybuzzSession):
         self.char = char
         self.session = session
@@ -76,11 +79,14 @@ class PolybuzzChar():
 
 
 async def main():
-    import dotenv
     import os
 
+    import dotenv
+
     dotenv.load_dotenv()
-    async with PolybuzzSession(os.getenv("POLY_CUID"), os.getenv("POLY_SESSION")) as polybuzz:
+    async with PolybuzzSession(
+        os.getenv("POLY_CUID"), os.getenv("POLY_SESSION")
+    ) as polybuzz:
         emily = PolybuzzChar("8A5Ty", polybuzz)
         await emily.send_msg("Nooo pls im inocent")
 
