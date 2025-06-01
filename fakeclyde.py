@@ -37,7 +37,7 @@ class PolybuzzFakeClyde(discord.Client):
         )
 
     def fbmatch(self, content: str):
-        fbpattern = r"https:\/\/www\.facebook\.com\/share\/r\/[A-Za-z0-9]+\/?"
+        fbpattern = r"https:\/\/www\.facebook\.com\/share\/[^\/]+\/[A-Za-z0-9]+\/?"
         match = re.search(fbpattern, content)
 
         if not match:
@@ -46,11 +46,10 @@ class PolybuzzFakeClyde(discord.Client):
         url = match.group()
 
         scraper = cloudscraper.create_scraper()
-        url = "https://fdown.net/download.php"
         data = {
-            "URLz": "https://www.facebook.com/share/r/16Z7EzGnT2/"
+            "URLz": url
         }
-        resp = scraper.post(url, data=data)
+        resp = scraper.post("https://fdown.net/download.php", data=data)
 
         soup = BeautifulSoup(resp.text, features="html.parser")
         anchor = soup.find("a", id="hdlink")
