@@ -1,7 +1,4 @@
 wheel
 git+https://github.com/dolfies/discord.py-self
 aiohttp
-beautifulsoup4
-cloudscraper
 python-dotenv
-python-dateutil

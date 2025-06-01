@@ -1,14 +1,10 @@
 import asyncio
-import datetime
 import os
 import re
 import sys
-from typing import Any, Dict, List, Optional
+from yt_dlp import YoutubeDL
 
-import cloudscraper
 import discord
-from bs4 import BeautifulSoup
-from dateutil import parser
 from dotenv import find_dotenv, load_dotenv
 
 from polybuzz import PolybuzzChar, PolybuzzSession
@@ -25,7 +21,7 @@ approved_channels = [
 
 
 class PolybuzzFakeClyde(discord.Client):
-    def __init__(self, **options: Any) -> None:
+    def __init__(self, **options) -> None:
         self.polybuzz: PolybuzzSession
         self.char: PolybuzzChar
         self.character_id = "pCBb4"
@@ -39,6 +35,7 @@ class PolybuzzFakeClyde(discord.Client):
         self.char = PolybuzzChar(self.character_id, self.polybuzz)
         print(f"Ready - Connected to {self.user.name} and polybuzz.ai")
 
+
     def fbmatch(self, content: str):
         fbpattern = r"https:\/\/www\.facebook\.com\/share\/[^\/]+\/[A-Za-z0-9]+\/?"
         match = re.search(fbpattern, content)
@@ -48,19 +45,23 @@ class PolybuzzFakeClyde(discord.Client):
 
         url = match.group()
 
-        scraper = cloudscraper.create_scraper()
-        data = {
-            "URLz": url
+        ydl_opts = {
+            'format': 'hd',
+            'quiet': True,
+            'skip_download': True,
+            'forceurl': True,
+            'noplaylist': True,
         }
-        resp = scraper.post("https://fdown.net/download.php", data=data)
 
-        soup = BeautifulSoup(resp.text, features="html.parser")
-        anchor = soup.find("a", id="hdlink")
-        if anchor and anchor.has_attr("href"):
-            hdlink = anchor["href"]
-            return hdlink
+        with YoutubeDL(ydl_opts) as ydl:
+            try:
+                info = ydl.extract_info(url, download=False)
+                # Get the direct video URL for the selected format
+                return info.get('url')
+            except Exception as e:
+                print(f"Error extracting video URL: {e}")
+                return
 
-        return
 
     async def on_message(self, message: discord.Message):
         if message.channel.id not in approved_channels:
