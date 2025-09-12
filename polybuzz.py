@@ -87,8 +87,8 @@ async def main():
     async with PolybuzzSession(
         os.getenv("POLY_CUID"), os.getenv("POLY_SESSION")
     ) as polybuzz:
-        emily = PolybuzzChar("8A5Ty", polybuzz)
-        await emily.send_msg("Nooo pls im inocent")
+        emily = PolybuzzChar("Uk5xe", polybuzz)
+        await emily.send_msg("Hello world")
 
 
 if __name__ == "__main__":
